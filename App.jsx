@@ -1,19 +1,52 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { useState } from 'react';
+import { connectionWebSocket } from './websocketClient';
 
 export default function App() {
+  const [name, setName] = useState('');
+  const [ip, setIp] = useState('');
+  const [port, setPort] = useState('');
+  const [ws, setWs] = useState(null);
+
+  const handleConnect = () => {
+    if (!name) {
+      Alert.alert("Error", "Please enter your name");
+      return;
+    }
+    connectionWebSocket(ip, port, name, setWs);
+  };
+  
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        Conectar ao Dispositivo
-      </Text>
+      <Text style={styles.title}>Conectar ao Dispositivo</Text>
       <Text style={styles.description}>
-        Para conectar é necessário digitar seu nome e escanear o código qr code ou inserir manualmente com o valor da porta e o do ip
+        Para conectar, digite seu nome e insira o IP e a porta.
       </Text>
-      <TextInput style={styles.input} placeholder="Digite aqui seu nome" maxLength={20} />
+      <TextInput
+        style={styles.input}
+        placeholder="Digite aqui seu nome"
+        maxLength={20}
+        value={name}
+        onChangeText={setName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Digite aqui o endereço IP"
+        value={ip}
+        onChangeText={setIp}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Digite aqui a porta"
+        value={port}
+        onChangeText={setPort}
+      />
       
-      <TextInput style={styles.input} placeholder="Digite aqui o endereço IP"/>
-      <TextInput style={styles.input} placeholder="Digite aqui a porta"/>
+      <TouchableOpacity style={styles.connectButton} onPress={handleConnect}>
+        <Text style={styles.connectText}>Conectar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -28,12 +61,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
+    fontWeight: 'bold',
   },
   description: {
     textAlign: 'center',
     marginTop: 5,
+    paddingVertical: 20,
     marginBottom: 10,
-    fontSize: 15,
+    fontSize: 16,
   },
   input: {
     width: '100%',
@@ -43,5 +78,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     marginBottom: 20,
+    fontSize: 15,
+  },
+  connectButton: {
+    width: '100%',
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+  },
+  connectText: {
+    color: 'white',
+    fontSize: 18,
+    textAlign: 'center',
   },
 });
