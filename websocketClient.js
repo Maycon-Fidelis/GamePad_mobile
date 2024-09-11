@@ -18,14 +18,17 @@ export const connectionWebSocket = (ip, port, name, setWs) => {
         };
 
         client.onclose = (event) => {
-            
-            switch (event) {
+            const code = event.code;
+            switch (code) {
                 case 4000:
+                    console.log("Error", "Connection limit reached.");
                     Alert.alert("Error", "Connection limit reached.");                                    
                     break;
                 case 4001:
+                    console.log("Error", "Username already exists. Please choose a different name.");
                     Alert.alert("Error", "Username already exists. Please choose a different name.");
                 default:
+                    console.log("Disconnected", "Connection closed");
                     Alert.alert("Disconnected", "Connection closed");
                     break;
             }
