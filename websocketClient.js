@@ -7,6 +7,7 @@ export const connectionWebSocket = (ip, port, name, setWs) => {
 
         client.onopen = () => {
             setWs(client);
+            console.log("Connect", `Connection at ${ip}:${port}`);
             Alert.alert("Connect", `Connection at ${ip}:${port}`);
 
             const userData = JSON.stringify({ username: name });
