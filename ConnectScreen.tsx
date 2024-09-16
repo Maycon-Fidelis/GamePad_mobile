@@ -1,18 +1,59 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, Animated } from 'react-native';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Collapsible from 'react-native-collapsible';
 import { connectionWebSocket } from './websocketClient';
+import { Camera, useCameraPermissions, CameraView } from 'expo-camera';
 
-export default function App() {
+type Prop = {
+  type: string;
+  data: string;
+};
+
+type ConnectScreenProps = {
+    setIsConnected: (connected: boolean) => void;
+};
+
+export default function ConnectScreen( { setIsConnected }: ConnectScreenProps) {
   const [name, setName] = useState('');
   const [ip, setIp] = useState('');
   const [port, setPort] = useState('');
   const [ws, setWs] = useState(null);
   const [collapsed, setCollapsed] = useState(true);
-  const animation = useRef(new Animated.Value(0)).current;
+  const [permission, requestPermission] = useCameraPermissions();
+  const [scanned, setScanned] = useState(false);
+  const [cameraVisible, setCameraVisible] = useState(false);
+  
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Desculpe, precisamos da permissão da câmera para fazer isso funcionar!');
+      }
+    })();
+  }, []);
 
-  // Função para alternar a exibição do Collapsible
+  const handleBarCodeScanned = ({ type, data }: Prop) => {
+    setScanned(true);
+    Alert.alert(
+      `Código ${type} Scaneado`,
+      `Dados: ${data}`,
+      [
+        {
+          text: 'OK',
+          onPress: () => setScanned(false),
+        }
+      ],
+      { cancelable: false }
+    );
+    connectionWebSocket(data, name, setWs);
+  
+    setTimeout(() => {
+      setScanned(false);
+    }, 500);
+  };
+  
+
   const toggleExpand = () => {
     if (name) {
       setCollapsed(!collapsed);
@@ -21,13 +62,18 @@ export default function App() {
     }
   };
 
-  // Função para lidar com a conexão
   const handleConnect = () => {
     if (!name) {
       Alert.alert("Error", "Por favor, digite seu nome");
       return;
     }
-    connectionWebSocket(ip, port, name, setWs);
+
+    const url = `ws://${ip}:${port}`;
+    connectionWebSocket(url, name, setWs, setIsConnected);
+  };
+
+  const toggleCameraVisibility = () => {
+    setCameraVisible(!cameraVisible);
   };
 
   return (
@@ -47,19 +93,17 @@ export default function App() {
         />
       </View>
       
-      {/* Botão para inserir IP e Porta manualmente */}
       <TouchableOpacity 
         style={[
           styles.connect_port_ip, 
           { opacity: name ? 1 : 0.5 }
         ]} 
         onPress={toggleExpand}
-        disabled={!name} // Desativa o botão se o nome estiver vazio
+        disabled={!name}
       >
         <Text style={styles.connect_port_ip_text}>Inserir manualmente</Text>
       </TouchableOpacity>
       
-      {/* Campos de IP e Porta dentro do Collapsible */}
       <View style={styles.collapsibleContainer}>
         <Collapsible collapsed={collapsed} style={styles.collapsible}>
           <View style={styles.collapsibleContent}>
@@ -78,7 +122,7 @@ export default function App() {
             <TouchableOpacity 
               style={styles.connectButton} 
               onPress={handleConnect}
-              disabled={!name} // Desativa o botão se o nome estiver vazio
+              disabled={!name}
             >
               <Text style={styles.connectText}>Conectar</Text>
             </TouchableOpacity>
@@ -86,15 +130,32 @@ export default function App() {
         </Collapsible>
       </View>
 
-      {/* Botão de conexão via QR Code */}
       <View style={styles.connect_qrcode}>
         <TouchableOpacity 
           style={{ opacity: name ? 1 : 0.5 }}
-          disabled={!name} // Desativa o botão se o nome estiver vazio
+          onPress={toggleCameraVisibility}
+          disabled={!name}
         >
           <Text style={styles.connect_qrcode_text}>Conectar via QR Code</Text>
         </TouchableOpacity>
       </View>
+
+      {cameraVisible && (
+        <CameraView
+          style={styles.camera}
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+        >
+          <View style={styles.layerContainer}>
+            <View style={styles.layerTop} />
+            <View style={styles.layerCenter}>
+              <View style={styles.layerLeft} />
+              <View style={styles.focused} />
+              <View style={styles.layerRight} />
+            </View>
+            <View style={styles.layerBottom} />
+          </View>
+        </CameraView>
+      )}
     </View>
   );
 }
@@ -111,7 +172,6 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: 'bold',
     color: '#fff',
-    fontFamily: 'Arial',
   },
   block_connect: {
     backgroundColor: '#2b2f3a',
@@ -121,13 +181,12 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 30,
     borderRadius: 10,
-    height: 120,
+    height: 150,
   },
   description: {
     textAlign: 'center',
     fontSize: 16,
     color: '#aaa',
-    fontFamily: 'Arial',
   },
   input: {
     color: '#fff',
@@ -140,7 +199,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginTop: 15,
     fontSize: 16,
-    fontFamily: 'Arial',
   },
   connectButton: {
     width: '100%',
@@ -169,7 +227,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     color: '#fff',
-    fontFamily: 'Arial',
   },
   connect_qrcode: {
     width: '100%',
@@ -185,7 +242,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     color: '#fff',
-    fontFamily: 'Arial',
   },
   collapsibleContainer: {
     width: '100%',
@@ -195,7 +251,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 240,
     borderRadius: 10,
-    borderColor: 'blue',
   },
   collapsibleContent: {
     padding: 15,
@@ -211,6 +266,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 15,
     fontSize: 16,
-    fontFamily: 'Arial',
+  },
+  camera: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    width: '100%',
+    marginTop: 20,
+    marginBottom: 100,
+  },
+  layerContainer: {
+    flex: 1,
+  },
+  layerTop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  layerCenter: {
+    flex: 3,
+    flexDirection: 'row',
+  },
+  layerLeft: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  focused: {
+    flex: 1.5,
+    borderColor: '#00FF00',
+    borderWidth: 2,
+    margin: 5,
+  },
+  layerRight: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  layerBottom: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
   },
 });
