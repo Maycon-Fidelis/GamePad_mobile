@@ -43,3 +43,11 @@ export const connectionWebSocket = (url, name, setWs, setIsConnected) => {
     Alert.alert("Error", "Please insert a valid IP, port, and name");
   }
 };
+
+export const disconnectWebSocket = (ws, setWs, setIsConnected) => {
+    if(ws){
+        ws.close();
+        setWs(null);
+        setIsConnected(false);
+    }
+};

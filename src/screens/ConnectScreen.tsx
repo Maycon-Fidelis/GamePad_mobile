@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, Animated } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import Collapsible from 'react-native-collapsible';
-import { connectionWebSocket } from './websocketClient';
+import { connectionWebSocket } from '../websocketClient';
 import { Camera, useCameraPermissions, CameraView } from 'expo-camera';
 
 type Prop = {
@@ -11,10 +11,11 @@ type Prop = {
 };
 
 type ConnectScreenProps = {
-    setIsConnected: (connected: boolean) => void;
+  connect: (url: string, name: string) => void;
+  isConnected: boolean;
 };
 
-export default function ConnectScreen( { setIsConnected }: ConnectScreenProps) {
+export default function ConnectScreen({connect}: ConnectScreenProps) {
   const [name, setName] = useState('');
   const [ip, setIp] = useState('');
   const [port, setPort] = useState('');
@@ -46,7 +47,7 @@ export default function ConnectScreen( { setIsConnected }: ConnectScreenProps) {
       ],
       { cancelable: false }
     );
-    connectionWebSocket(data, name, setWs);
+    connect(data, name);
   
     setTimeout(() => {
       setScanned(false);
@@ -69,7 +70,7 @@ export default function ConnectScreen( { setIsConnected }: ConnectScreenProps) {
     }
 
     const url = `ws://${ip}:${port}`;
-    connectionWebSocket(url, name, setWs, setIsConnected);
+    connect(url, name);
   };
 
   const toggleCameraVisibility = () => {
