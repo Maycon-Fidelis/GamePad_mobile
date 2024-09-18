@@ -4,12 +4,11 @@ import { PanGestureHandler, State } from 'react-native-gesture-handler';
 
 interface JoystickProps {
   joystickId: string;
-  onDataLog: (message: string) => void; // Função para logar dados
-  onDataSend: (data: any) => void; // Função para enviar os dados
-  size?: number; // Tamanho personalizável do joystick
-  backgroundColor?: string; // Cor do fundo personalizável
-  ballColor?: string; // Cor da bola central personalizável
-  ballOpacity?: number; // Opacidade da bola central
+  onDataChange: (data: any) => void; // Callback genérico para o desenvolvedor decidir como tratar os dados
+  size?: number;
+  backgroundColor?: string;
+  ballColor?: string;
+  ballOpacity?: number;
 }
 
 interface JoystickState {
@@ -17,8 +16,6 @@ interface JoystickState {
     duration: number;
     x: number;
     y: number;
-    velocity: number;
-    slope: number;
   };
   buttons: Record<string, unknown>;
 }
@@ -28,8 +25,6 @@ const initialState: JoystickState = {
     duration: 0,
     x: 0,
     y: 0,
-    velocity: 0,
-    slope: 0,
   },
   buttons: {},
 };
@@ -41,8 +36,7 @@ const reducer = (state: JoystickState, action: { type: string; payload: any }): 
 
 const Joystick: React.FC<JoystickProps> = ({
   joystickId,
-  onDataLog,
-  onDataSend,
+  onDataChange, // Função callback flexível para o tratamento dos dados
   size = 110, // Valor padrão de tamanho
   backgroundColor = '#DDD', // Cor de fundo padrão
   ballColor = 'blue', // Cor da bola padrão
@@ -81,58 +75,46 @@ const Joystick: React.FC<JoystickProps> = ({
     const mappedX = mapToRange(x, -1, 1, -32768, 32767);
     const mappedY = mapToRange(-y, -1, 1, -32768, 32767);
 
-    updateController({
-      type: 'JOYSTICK',
-      payload: {
-        duration: controller.joystick.duration + 1,
-        x: mappedX,
-        y: mappedY,
-        id: joystickId,
-      },
-    });
-
-    const message = {
-      type: 'joystick',
-      joystick: {
-        duration: controller.joystick.duration + 1,
-        x: mappedX,
-        y: mappedY,
-        id: joystickId,
-      },
+    const newJoystickData = {
+      duration: controller.joystick.duration + 1,
+      x: mappedX,
+      y: mappedY,
+      id: joystickId,
     };
 
-    onDataLog('Joystick data: ' + JSON.stringify(message));
-    onDataSend(message);
+    // Atualizar o estado do joystick
+    updateController({
+      type: 'JOYSTICK',
+      payload: newJoystickData,
+    });
+
+    // Enviar os dados para a função callback
+    onDataChange(newJoystickData);
   };
 
   const stopJoystick = () => {
     setVector({ x: 0, y: 0 });
-    updateController({
-      type: 'JOYSTICK',
-      payload: {
-        duration: 0,
-        x: 0,
-        y: 0,
-        id: joystickId,
-      },
-    });
 
-    const message = {
-      type: 'joystick',
-      joystick: {
-        duration: 0,
-        x: 0,
-        y: 0,
-        id: joystickId,
-      },
+    const resetData = {
+      duration: 0,
+      x: 0,
+      y: 0,
+      id: joystickId,
     };
 
-    onDataLog('Joystick stopped: ' + JSON.stringify(message));
-    onDataSend(message);
+    // Atualizar o estado do joystick
+    updateController({
+      type: 'JOYSTICK',
+      payload: resetData,
+    });
+
+    // Enviar os dados para a função callback
+    onDataChange(resetData);
   };
 
   useEffect(() => {
-    onDataLog('Joystick initialized with ID: ' + joystickId);
+    // Joystick inicializado
+    onDataChange({ type: 'init', id: joystickId });
   }, [joystickId]);
 
   return (
@@ -144,8 +126,8 @@ const Joystick: React.FC<JoystickProps> = ({
             stopJoystick();
           }
         }}>
-        <View style={[styles.container, { width: size, height: size, backgroundColor }]}>
-          <View style={[styles.joystickBackground, { width: size, height: size, borderRadius: size / 2 }]}>
+        <View style={[styles.container, { width: size, height: size }]}>
+          <View style={[styles.joystickBackground, { width: size, height: size, borderRadius: size / 2, backgroundColor }]}>
             <View
               style={[
                 styles.joystickBall,
@@ -171,7 +153,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 60,
-    backgroundColor: '#DDD',
   },
   joystickBackground: {
     borderColor: 'rgba(255,255,255,0.5)',
@@ -185,4 +166,3 @@ const styles = StyleSheet.create({
 });
 
 export default Joystick;
-    

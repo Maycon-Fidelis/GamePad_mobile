@@ -22,9 +22,9 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       {isConnected ? (
-        <ControlScreen disconnect={disconnect}/>
-      ) : (
         <ConnectScreen  connect={connect} />
+      ) : (
+        <ControlScreen disconnect={disconnect}/>
       )}
     </View>
   );

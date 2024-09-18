@@ -26,14 +26,15 @@ export default function ControlScreen({ disconnect }) {
       </TouchableOpacity>
 
       <Joystick
-  joystickId="joystick1"
-  onDataLog={logData}
-  onDataSend={sendData}
-  size={120} // Personalize o tamanho
-  backgroundColor="lightgray" // Personalize a cor de fundo
-  ballColor="red" // Personalize a cor da bola
-  ballOpacity={0.8} // Personalize a opacidade da bola
-/>
+      joystickId="joystick1"
+      onDataChange={(data) => {
+        console.log('Joystick data:', data);
+      }}
+      size={140} 
+      backgroundColor="#fff"
+      ballColor="blue"
+      ballOpacity={0.8}
+    />
 
       <Modal
         transparent={true}
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'black',
   },
   openModalButton: {
     backgroundColor: '#007bff',
