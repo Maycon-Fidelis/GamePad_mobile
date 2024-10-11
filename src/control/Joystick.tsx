@@ -4,7 +4,7 @@ import { PanGestureHandler, State } from 'react-native-gesture-handler';
 
 interface JoystickProps {
   joystickId: string;
-  onDataChange: (data: any) => void; // Callback genérico para o desenvolvedor decidir como tratar os dados
+  onDataChange: (data: any) => void;
   size?: number;
   backgroundColor?: string;
   ballColor?: string;
@@ -36,11 +36,11 @@ const reducer = (state: JoystickState, action: { type: string; payload: any }): 
 
 const Joystick: React.FC<JoystickProps> = ({
   joystickId,
-  onDataChange, // Função callback flexível para o tratamento dos dados
-  size = 110, // Valor padrão de tamanho
-  backgroundColor = '#DDD', // Cor de fundo padrão
-  ballColor = 'blue', // Cor da bola padrão
-  ballOpacity = 0.9, // Opacidade padrão
+  onDataChange,
+  size = 110,
+  backgroundColor = '#DDD',
+  ballColor = 'blue',
+  ballOpacity = 0.9,
 }) => {
   const [controller, updateController] = useReducer(reducer, initialState);
   const [vector, setVector] = useState({ x: 0, y: 0 });
@@ -82,14 +82,12 @@ const Joystick: React.FC<JoystickProps> = ({
       id: joystickId,
     };
 
-    // Atualizar o estado do joystick
     updateController({
       type: 'JOYSTICK',
       payload: newJoystickData,
     });
 
-    // Enviar os dados para a função callback
-    onDataChange(newJoystickData);
+   onDataChange(newJoystickData);
   };
 
   const stopJoystick = () => {
@@ -102,18 +100,15 @@ const Joystick: React.FC<JoystickProps> = ({
       id: joystickId,
     };
 
-    // Atualizar o estado do joystick
     updateController({
       type: 'JOYSTICK',
       payload: resetData,
     });
 
-    // Enviar os dados para a função callback
     onDataChange(resetData);
   };
 
   useEffect(() => {
-    // Joystick inicializado
     onDataChange({ type: 'init', id: joystickId });
   }, [joystickId]);
 

@@ -1,41 +1,36 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
-import Joystick from '../control/Joystick';
+import React, { useEffect, useState } from 'react'; 
+import { View, Text, TouchableOpacity, Modal, StyleSheet, StatusBar } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 export default function ControlScreen({ disconnect }) {
   const [modalVisible, setModalVisible] = useState(false);
+  
+  useEffect(() => {
+    const lockOrientation = async () => {
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+      StatusBar.setHidden(true); // Oculte a barra de status
+    };
+
+    lockOrientation();
+
+    return () => {
+      ScreenOrientation.unlockAsync();
+      StatusBar.setHidden(false); // Mostre a barra de status quando o componente for desmontado
+    };
+  }, []);
 
   const handleDisconnect = () => {
     disconnect();
     setModalVisible(false);
   };
 
-  const logData = (message) => {
-    console.log(message); // Loga no console (ou outro mecanismo de log)
-  };
-
-  const sendData = (data) => {
-    // Aqui você pode enviar para um WebSocket, API ou outro
-    console.log('Sending data', data);
-  };
-
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.openModalButton}>
         <Text style={styles.buttonText}>Open Settings</Text>
       </TouchableOpacity>
-
-      <Joystick
-      joystickId="joystick1"
-      onDataChange={(data) => {
-        console.log('Joystick data:', data);
-      }}
-      size={140} 
-      backgroundColor="#fff"
-      ballColor="blue"
-      ballOpacity={0.8}
-    />
-
+      
       <Modal
         transparent={true}
         visible={modalVisible}
@@ -57,7 +52,7 @@ export default function ControlScreen({ disconnect }) {
           </View>
         </View>
       </Modal>
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
