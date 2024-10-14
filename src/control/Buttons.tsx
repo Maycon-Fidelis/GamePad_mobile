@@ -13,7 +13,7 @@ const Buttons: React.FC<ButtonsProps> = ({
   onData,
   color = 'blue',
   background = 'white',
-  size = 60,
+  size = 55,
 }) => {
   const [pressedButtons, setPressedButtons] = useState<{ [key: string]: boolean }>({});
   
@@ -25,10 +25,10 @@ const Buttons: React.FC<ButtonsProps> = ({
   const handleStateChange = (button: string, state: number) => {
     if (state === State.BEGAN) {
       setPressedButtons((prev) => ({ ...prev, [button]: true }));
-      onData({ button, action: 'press' });
+      onData({ button, action: 'press' }); // Envia o estado "press"
     } else if (state === State.END || state === State.FAILED || state === State.CANCELLED) {
       setPressedButtons((prev) => ({ ...prev, [button]: false }));
-      onData({ button, action: 'release' });
+      onData({ button, action: 'release' }); // Envia o estado "release"
     }
   };
 

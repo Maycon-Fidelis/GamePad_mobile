@@ -46,7 +46,7 @@ const ExtraButton: React.FC<ExtraButtonProps> = ({
           }
         ]}
       >
-        <Text style={[styles.ExtraText, { color, fontSize: size * 0.3 }]}>{label}</Text>
+        <Text style={[styles.ExtraText, { color, fontSize: size * 0.2 }]}>{label}</Text>
       </View>
     </LongPressGestureHandler>
   );

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text } from 'react-native';
-import { connectionWebSocket, disconnectWebSocket } from './src/websocketClient';
+import { View } from 'react-native';
+import { connectionWebSocket, disconnectWebSocket, sendControlData, sendJoystickData } from './src/websocketClient';
 import ConnectScreen from './src/screens/ConnectScreen';
 import ControlScreen from './src/screens/ControlScreen';
 
@@ -8,25 +8,37 @@ export default function App() {
   const [ws, setWs] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
 
-
-  const connect = (url,name) => {
-    connectionWebSocket(url,name,setWs,setIsConnected);
+  const connect = (url, name) => {
+    connectionWebSocket(url, name, setWs, setIsConnected);
   };
 
   const disconnect = () => {
-    if (ws){
-      disconnectWebSocket(ws,setWs,setIsConnected);
+    if (ws) {
+      disconnectWebSocket(ws, setWs, setIsConnected);
     }
+  };
+
+  const handleJoystickChange = (data) => {
+    const {id, x, y} = data;
+    sendJoystickData(ws,id, x, y);
+  };
+
+  const handleButtonData = (data) => {
+    const { button, action } = data;
+    sendControlData(ws,button,action);
   };
 
   return (
     <View style={{ flex: 1 }}>
-      {isConnected ? (
-        <ConnectScreen  connect={connect} />
+      {!isConnected ? (
+        <ControlScreen
+          disconnect={disconnect}
+          handleButtonData={handleButtonData}
+          handleJoystickChange={handleJoystickChange}
+        />
       ) : (
-        <ControlScreen disconnect={disconnect}/>
+        <ConnectScreen connect={connect} />
       )}
     </View>
   );
 }
-

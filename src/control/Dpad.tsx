@@ -18,7 +18,7 @@ const Dpad: React.FC<DpadProps> = ({
   onData,
   color = 'blue',
   background = 'white',
-  size = 60,
+  size = 55,
 }) => {
   const [pressedButton, setPressedButton] = useState<string | null>(null);
 

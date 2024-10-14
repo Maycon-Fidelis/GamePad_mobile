@@ -1,4 +1,5 @@
 import { Alert } from 'react-native';
+import Joystick from './control/Joystick';
 
 export const connectionWebSocket = (url, name, setWs, setIsConnected) => {
   if (url && name) {
@@ -43,6 +44,36 @@ export const connectionWebSocket = (url, name, setWs, setIsConnected) => {
     Alert.alert("Error", "Please insert a valid IP, port, and name");
   }
 };
+
+export const sendControlData = (ws, button, state) => {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    const message = JSON.stringify({
+      type: 'control',
+      button,
+      state
+    });
+    console.log("Enviando dados de controle:", message);
+    ws.send(message);
+  } else {
+    console.log("WebSocket não está aberto ou conectado.");
+  }
+};
+
+export const sendJoystickData = (ws, joystickId, x, y) => {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    const message = JSON.stringify({
+        type: 'joystick',
+        id: joystickId,
+        x: x,
+        y: y
+    });
+    console.log("Enviando dados do joystick:", message);
+    ws.send(message);
+  } else {
+    console.log("WebSocket não está aberto ou conectado.");
+  }
+};
+
 
 export const disconnectWebSocket = (ws, setWs, setIsConnected) => {
     if(ws){

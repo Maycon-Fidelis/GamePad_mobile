@@ -1,22 +1,33 @@
-import React, { useEffect, useState } from 'react'; 
-import { View, Text, TouchableOpacity, Modal, StyleSheet, StatusBar } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, StatusBar, Dimensions } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import * as NavigationBar from 'expo-navigation-bar';
+import Joystick from '../control/Joystick';
+import Buttons from '../control/Buttons';
+import Dpad from '../control/Dpad';
+import Bumper from '../control/Bumper';
+import Triggers from '../control/Triggers';
+import Stick from '../control/Stick';
+import ExtraButton from '../control/ExtraButton';
 
-export default function ControlScreen({ disconnect }) {
+const { width, height } = Dimensions.get('window'); // Captura a largura e altura da tela
+
+export default function ControlScreen({ disconnect, handleJoystickChange, handleButtonData }) {
   const [modalVisible, setModalVisible] = useState(false);
-  
+
   useEffect(() => {
     const lockOrientation = async () => {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-      StatusBar.setHidden(true); // Oculte a barra de status
+      StatusBar.setHidden(true);
     };
 
     lockOrientation();
+    NavigationBar.setVisibilityAsync("hidden");
 
     return () => {
       ScreenOrientation.unlockAsync();
-      StatusBar.setHidden(false); // Mostre a barra de status quando o componente for desmontado
+      StatusBar.setHidden(false);
     };
   }, []);
 
@@ -25,12 +36,123 @@ export default function ControlScreen({ disconnect }) {
     setModalVisible(false);
   };
 
+  // Definindo as posições
+  const positions = {
+    dpad: { x: width * 0.07, y: height * 0.17 },
+    buttons: { x: width * 1.52, y: height * 0.17 },
+    Joystick1: { x: width * 0.55, y: height * 0.3 },
+    Joystick2: { x: width * 1.2, y: height * 0.3 },
+    lb: { x: width * 0.4, y: height * 0.1 },
+    lt: { x: width * 0.15, y: height * 0.02 },
+    rb: { x: width * 1.4, y: height * 0.1 },
+    rt: { x: width * 1.65, y: height * 0.02 },
+    ls: { x: width * 0.35, y: height * 0.4 },
+    rs: { x: width * 1.6, y: height * 0.4 },
+  };
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.openModalButton}>
-        <Text style={styles.buttonText}>Open Settings</Text>
+        <Text style={styles.buttonText}>Configurações</Text>
       </TouchableOpacity>
+
+      <View style={[styles.control, { left: positions.buttons.x, top: positions.buttons.y }]}>
+        <Buttons 
+        onData={handleButtonData}
+        size={50}
+        />
+      </View>
+
+      <View style={[styles.control, { left: positions.dpad.x, top: positions.dpad.y }]}>      
+        <Dpad
+        onData={handleButtonData}
+        size={50}
+        />
+      </View>
+
+      <View style={[styles.control, { left: positions.Joystick1.x, top: positions.Joystick1.y }]}>      
+        <Joystick 
+        joystickId='joystick1'
+        onDataChange={handleJoystickChange}
+        size={120}
+        />
+      </View>
+
+      <View style={[styles.control, { left: positions.Joystick2.x, top: positions.Joystick2.y }]}>      
+        <Joystick 
+        joystickId='joystick2'
+        onDataChange={handleJoystickChange}
+        size={120}
+        />
+      </View>
+
+      <View style={[styles.control, { left: positions.lb.x, top: positions.lb.y }]}>      
+        <Bumper
+        onDataChange={handleButtonData}
+        size={55}
+        label='LB'
+        />
+      </View>
+
+      <View style={[styles.control, { left: positions.lt.x, top: positions.lt.y }]}>      
+        <Triggers
+        onDataChange={handleButtonData}
+        size={50}
+        label='LT'
+        />
+      </View>
       
+      <View style={[styles.control, { left: positions.rb.x, top: positions.rb.y }]}>      
+        <Bumper
+        onDataChange={handleButtonData}
+        size={55}
+        label='RB'
+        />
+      </View>
+
+      <View style={[styles.control, { left: positions.rt.x, top: positions.rt.y }]}>      
+        <Triggers
+        onDataChange={handleButtonData}
+        size={50}
+        label='RT'
+        />
+      </View>
+
+      <View style={[styles.control, { left: positions.ls.x, top: positions.ls.y }]}>
+        <Stick
+        onData={handleButtonData}
+        label='LS'
+        size={40}
+        />
+      </View>
+
+      <View style={[styles.control, { left: positions.rs.x, top: positions.rs.y }]}>
+        <Stick
+        onData={handleButtonData}
+        label='RS'
+        size={40}
+        />
+      </View>
+
+      {/* Container para SELECT, HOME e START no topo */}
+      <View style={styles.topButtonsContainer}>
+        <ExtraButton
+          label='SELECT'
+          size={60}
+          onData={handleButtonData}
+        />
+        <ExtraButton
+          label='HOME'
+          size={60}
+          onData={handleButtonData}
+        />
+        <ExtraButton
+          label='START'
+          size={60}
+          onData={handleButtonData}
+        />
+      </View>
+
       <Modal
         transparent={true}
         visible={modalVisible}
@@ -40,7 +162,6 @@ export default function ControlScreen({ disconnect }) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Settings</Text>
-
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={handleDisconnect} style={styles.modalButton}>
                 <Text style={styles.modalButtonText}>Disconnect</Text>
@@ -62,6 +183,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'black',
+  },
+  control: {
+    position: 'absolute',
   },
   openModalButton: {
     backgroundColor: '#007bff',
@@ -104,5 +228,14 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  topButtonsContainer: {
+    position: 'absolute',
+    top: 10,
+    width: '35%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
   },
 });
