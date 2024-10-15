@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, Switch } from 'react-native';
 import { useState, useEffect } from 'react';
 import Collapsible from 'react-native-collapsible';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { Camera, useCameraPermissions, CameraView } from 'expo-camera';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +13,7 @@ type Prop = {
 
 type ConnectScreenProps = {
   connect: (url: string, name: string) => void;
-  changeLanguage: (lng: string) => void;  // Adicionando changeLanguage aqui
+  changeLanguage: (lng: string) => void;
   isConnected: boolean;
 };
 
@@ -33,6 +34,14 @@ export default function ConnectScreen({ connect, changeLanguage }: ConnectScreen
         alert(t('alert_camera'));
       }
     })();
+
+    const lockOrientation = async () => {
+      await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    };
+
+    lockOrientation();
+
+    lockOrientation();
   }, []);
 
   const toggleLanguage = () => {

@@ -25,6 +25,7 @@ export default function ControlScreen({ disconnect, handleJoystickChange, handle
     };
 
     lockOrientation();
+    
     NavigationBar.setVisibilityAsync("hidden");
 
     return () => {
