@@ -24,7 +24,7 @@ export default function ConnectScreen({ connect, changeLanguage }: ConnectScreen
   const [scanned, setScanned] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(false);
   const { t, i18n } = useTranslation();
-  const [isPortuguese, setIsPortuguese] = useState(true);
+  const [isLanguage, setIsLanguage] = useState(i18n.language === 'pt');
 
   useEffect(() => {
     (async () => {
@@ -36,9 +36,9 @@ export default function ConnectScreen({ connect, changeLanguage }: ConnectScreen
   }, []);
 
   const toggleLanguage = () => {
-    const newLanguage = isPortuguese ? 'en' : 'pt';
+    const newLanguage = isLanguage ? 'en' : 'pt';
     changeLanguage(newLanguage);
-    setIsPortuguese(!isPortuguese);
+    setIsLanguage(!isLanguage);
   };
 
   const handleBarCodeScanned = ({ type, data }: Prop) => {
@@ -83,9 +83,9 @@ const handleConnect = () => {
       <View style={styles.languageSwitchContainer}>
         <Text style={styles.languageText}>PT</Text>
         <Switch
-          value={!isPortuguese}
+          value={!isLanguage}
           onValueChange={toggleLanguage}
-          thumbColor={isPortuguese ? '#007bff' : '#fff'}
+          thumbColor={isLanguage ? '#007bff' : '#fff'}
           trackColor={{ false: '#ccc', true: '#007bff' }}
         />
         <Text style={styles.languageText}>EN</Text>
