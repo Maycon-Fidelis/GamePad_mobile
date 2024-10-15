@@ -1,5 +1,6 @@
 import { Alert } from 'react-native';
 import Joystick from './control/Joystick';
+import i18n from './utils/i18n'; // Importa o i18n para utilizar as traduções
 
 export const connectionWebSocket = (url, name, setWs, setIsConnected) => {
   if (url && name) {
@@ -7,41 +8,41 @@ export const connectionWebSocket = (url, name, setWs, setIsConnected) => {
 
     client.onopen = () => {
       setWs(client);
-      console.log("Connect", `Connected to ${url}`);
-      Alert.alert("Connected", `Connected to ${url}`);
+      console.log(i18n.t("connected"), i18n.t('connected_to', { url }));
+      Alert.alert(i18n.t("connected"), i18n.t('connected_to', { url }));
 
       const userData = JSON.stringify({ username: name });
       client.send(userData);
 
-      setIsConnected(true); // Marca como conectado
+      setIsConnected(true);
     };
 
     client.onerror = (error) => {
-      Alert.alert("Error", error.message || "Connection Error");
-      setIsConnected(false); // Marca como não conectado
+      Alert.alert(i18n.t("error"), error.message || i18n.t("connection_error"));
+      setIsConnected(false);
     };
 
     client.onclose = (event) => {
       const code = event.code;
       switch (code) {
         case 4000:
-          console.log("Error", "Connection limit reached.");
-          Alert.alert("Error", "Connection limit reached.");
+          console.log(i18n.t("error"), i18n.t("connection_limit_reached"));
+          Alert.alert(i18n.t("error"), i18n.t("connection_limit_reached"));
           break;
         case 4001:
-          console.log("Error", "Username already exists. Please choose a different name.");
-          Alert.alert("Error", "Username already exists. Please choose a different name.");
+          console.log(i18n.t("error"), i18n.t("username_exists"));
+          Alert.alert(i18n.t("error"), i18n.t("username_exists"));
           break;
         default:
-          console.log("Disconnected", "Connection closed");
-          Alert.alert("Disconnected", "Connection closed");
+          console.log(i18n.t("disconnected"), i18n.t("connection_closed"));
+          Alert.alert(i18n.t("disconnected"), i18n.t("connection_closed"));
           break;
       }
       setWs(null);
-      setIsConnected(false); // Marca como desconectado
+      setIsConnected(false);
     };
   } else {
-    Alert.alert("Error", "Please insert a valid IP, port, and name");
+    Alert.alert(i18n.t("error"), i18n.t("insert_valid_info"));
   }
 };
 
@@ -52,10 +53,10 @@ export const sendControlData = (ws, button, state) => {
       button,
       state
     });
-    console.log("Enviando dados de controle:", message);
+    console.log(i18n.t("sending_control_data"), message);
     ws.send(message);
   } else {
-    console.log("WebSocket não está aberto ou conectado.");
+    console.log(i18n.t("websocket_not_open"));
   }
 };
 
@@ -67,18 +68,18 @@ export const sendJoystickData = (ws, joystickId, x, y) => {
         x: x,
         y: y
     });
-    console.log("Enviando dados do joystick:", message);
+    console.log(i18n.t("sending_joystick_data"), message);
     ws.send(message);
   } else {
-    console.log("WebSocket não está aberto ou conectado.");
+    console.log(i18n.t("websocket_not_open"));
   }
 };
 
-
 export const disconnectWebSocket = (ws, setWs, setIsConnected) => {
-    if(ws){
-        ws.close();
-        setWs(null);
-        setIsConnected(false);
-    }
+  if(ws){
+      ws.close();
+      setWs(null);
+      setIsConnected(false);
+      Alert.alert(i18n.t('disconnected'), i18n.t('connection_closed'));
+  }
 };

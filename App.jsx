@@ -3,10 +3,13 @@ import { View } from 'react-native';
 import { connectionWebSocket, disconnectWebSocket, sendControlData, sendJoystickData } from './src/websocketClient';
 import ConnectScreen from './src/screens/ConnectScreen';
 import ControlScreen from './src/screens/ControlScreen';
+import './src/utils/i18n';
+import { useTranslation } from 'react-i18next';
 
 export default function App() {
   const [ws, setWs] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const { i18n } = useTranslation();
 
   const connect = (url, name) => {
     connectionWebSocket(url, name, setWs, setIsConnected);
@@ -19,25 +22,29 @@ export default function App() {
   };
 
   const handleJoystickChange = (data) => {
-    const {id, x, y} = data;
-    sendJoystickData(ws,id, x, y);
+    const { id, x, y } = data;
+    sendJoystickData(ws, id, x, y);
   };
 
   const handleButtonData = (data) => {
     const { button, action } = data;
-    sendControlData(ws,button,action);
+    sendControlData(ws, button, action);
+  };
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
   };
 
   return (
     <View style={{ flex: 1 }}>
-      {!isConnected ? (
+      {isConnected ? (
         <ControlScreen
           disconnect={disconnect}
           handleButtonData={handleButtonData}
           handleJoystickChange={handleJoystickChange}
         />
       ) : (
-        <ConnectScreen connect={connect} />
+        <ConnectScreen connect={connect} changeLanguage={changeLanguage} isConnected={isConnected}/>
       )}
     </View>
   );

@@ -1,9 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, Animated } from 'react-native';
-import { useState, useRef, useEffect } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, Switch } from 'react-native';
+import { useState, useEffect } from 'react';
 import Collapsible from 'react-native-collapsible';
-import { connectionWebSocket } from '../websocketClient';
 import { Camera, useCameraPermissions, CameraView } from 'expo-camera';
+import { useTranslation } from 'react-i18next';
 
 type Prop = {
   type: string;
@@ -12,62 +12,62 @@ type Prop = {
 
 type ConnectScreenProps = {
   connect: (url: string, name: string) => void;
+  changeLanguage: (lng: string) => void;  // Adicionando changeLanguage aqui
   isConnected: boolean;
 };
 
-export default function ConnectScreen({connect}: ConnectScreenProps) {
+export default function ConnectScreen({ connect, changeLanguage }: ConnectScreenProps) {
   const [name, setName] = useState('');
   const [ip, setIp] = useState('');
   const [port, setPort] = useState('');
-  const [ws, setWs] = useState(null);
   const [collapsed, setCollapsed] = useState(true);
-  const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(false);
-  
+  const { t, i18n } = useTranslation();
+  const [isPortuguese, setIsPortuguese] = useState(true);
+
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       if (status !== 'granted') {
-        alert('Desculpe, precisamos da permissão da câmera para fazer isso funcionar!');
+        alert(t('alert_camera'));
       }
     })();
   }, []);
 
+  const toggleLanguage = () => {
+    const newLanguage = isPortuguese ? 'en' : 'pt';
+    changeLanguage(newLanguage);
+    setIsPortuguese(!isPortuguese);
+  };
+
   const handleBarCodeScanned = ({ type, data }: Prop) => {
     setScanned(true);
-    Alert.alert(
-      `Código ${type} Scaneado`,
-      `Dados: ${data}`,
-      [
-        {
-          text: 'OK',
-          onPress: () => setScanned(false),
-        }
-      ],
-      { cancelable: false }
-    );
+    Alert.alert(t('alert_scan_code', { type }), t('alert_data', { data }), [
+      {
+        text: 'OK',
+        onPress: () => setScanned(false),
+      },
+    ]);
     connect(data, name);
-  
     setTimeout(() => {
       setScanned(false);
     }, 500);
   };
-  
 
   const toggleExpand = () => {
     if (name) {
       setCollapsed(!collapsed);
     } else {
-      Alert.alert("Aviso", "Por favor, digite seu nome primeiro.");
+      Alert.alert(t('warning_name_first'));
     }
   };
 
-  const handleConnect = () => {
-    if (!name) {
-      Alert.alert("Error", "Por favor, digite seu nome");
-      return;
-    }
+const handleConnect = () => {
+  if (!name) {
+    Alert.alert(t('error_name_required'));
+    return;
+  }
 
     const url = `ws://${ip}:${port}`;
     connect(url, name);
@@ -79,15 +79,27 @@ export default function ConnectScreen({connect}: ConnectScreenProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Conectar ao Dispositivo</Text>
+      
+      <View style={styles.languageSwitchContainer}>
+        <Text style={styles.languageText}>PT</Text>
+        <Switch
+          value={!isPortuguese}
+          onValueChange={toggleLanguage}
+          thumbColor={isPortuguese ? '#007bff' : '#fff'}
+          trackColor={{ false: '#ccc', true: '#007bff' }}
+        />
+        <Text style={styles.languageText}>EN</Text>
+      </View>
+
+      <Text style={styles.title}>{t('connect')}</Text>
 
       <View style={styles.block_connect}>
         <Text style={styles.description}>
-          Para conectar, digite seu nome (obrigatório).
+          {t('enter_name')}
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="Digite aqui seu nome"
+          placeholder={t('enter_name')}
           maxLength={20}
           value={name}
           onChangeText={setName}
@@ -102,7 +114,7 @@ export default function ConnectScreen({connect}: ConnectScreenProps) {
         onPress={toggleExpand}
         disabled={!name}
       >
-        <Text style={styles.connect_port_ip_text}>Inserir manualmente</Text>
+        <Text style={styles.connect_port_ip_text}>{t('manual_entry')}</Text>
       </TouchableOpacity>
       
       <View style={styles.collapsibleContainer}>
@@ -110,13 +122,13 @@ export default function ConnectScreen({connect}: ConnectScreenProps) {
           <View style={styles.collapsibleContent}>
             <TextInput
               style={styles.inputCollapsible}
-              placeholder="Digite aqui o endereço IP"
+              placeholder={t('enter_ip')}
               value={ip}
               onChangeText={setIp}
             />
             <TextInput
               style={styles.inputCollapsible}
-              placeholder="Digite aqui a porta"
+              placeholder={t('enter_port')}
               value={port}
               onChangeText={setPort}
             />
@@ -125,7 +137,7 @@ export default function ConnectScreen({connect}: ConnectScreenProps) {
               onPress={handleConnect}
               disabled={!name}
             >
-              <Text style={styles.connectText}>Conectar</Text>
+              <Text style={styles.connectText}>{t('connect_button')}</Text>
             </TouchableOpacity>
           </View>
         </Collapsible>
@@ -137,7 +149,7 @@ export default function ConnectScreen({connect}: ConnectScreenProps) {
           onPress={toggleCameraVisibility}
           disabled={!name}
         >
-          <Text style={styles.connect_qrcode_text}>Conectar via QR Code</Text>
+          <Text style={styles.connect_qrcode_text}>{t('connect_qr')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -303,5 +315,16 @@ const styles = StyleSheet.create({
   layerBottom: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  languageSwitchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  languageText: {
+    color: '#fff',
+    fontSize: 16,
+    marginHorizontal: 10,
   },
 });
