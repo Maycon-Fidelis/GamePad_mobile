@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { LongPressGestureHandler, State } from 'react-native-gesture-handler';
 
 interface StickProps {
-  onData: (data: { button: string | null; action: 'press' | 'release' }) => void;
+  onData: (data: { button: string | null; action: 'p' | 'r' }) => void;
   color?: string;
   background?: string;
   size?: number;
@@ -22,10 +22,10 @@ const Stick: React.FC<StickProps> = ({
   const handleStateChange = (state: number) => {
     if (state === State.BEGAN) {
       setPressedButton(label);
-      onData({ button: label, action: 'press' });
+      onData({ button: label, action: 'p' });
     } else if (state === State.END || state === State.FAILED || state === State.CANCELLED) {
       setPressedButton(null); 
-      onData({ button: label, action: 'release' });
+      onData({ button: label, action: 'r' });
     }
   };
 

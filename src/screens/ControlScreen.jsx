@@ -74,7 +74,7 @@ export default function ControlScreen({ disconnect, handleJoystickChange, handle
 
       <View style={[styles.control, { left: positions.Joystick1.x, top: positions.Joystick1.y }]}>      
         <Joystick 
-          joystickId='joystick1'
+          joystickId='1'
           onDataChange={handleJoystickChange}
           size={120}
         />
@@ -82,7 +82,7 @@ export default function ControlScreen({ disconnect, handleJoystickChange, handle
 
       <View style={[styles.control, { left: positions.Joystick2.x, top: positions.Joystick2.y }]}>      
         <Joystick 
-          joystickId='joystick2'
+          joystickId='2'
           onDataChange={handleJoystickChange}
           size={120}
         />
@@ -92,7 +92,7 @@ export default function ControlScreen({ disconnect, handleJoystickChange, handle
         <Bumper
           onData={handleButtonData}
           size={55}
-          label={'lb'}
+          label={'LB'}
         />
       </View>
 
@@ -100,7 +100,7 @@ export default function ControlScreen({ disconnect, handleJoystickChange, handle
         <Triggers
           onData={handleButtonData}
           size={50}
-          label={'lt'}
+          label={'LT'}
         />
       </View>
       
@@ -108,7 +108,7 @@ export default function ControlScreen({ disconnect, handleJoystickChange, handle
         <Bumper
           onData={handleButtonData}
           size={55}
-          label='rb'
+          label='RB'
         />
       </View>
 
@@ -116,14 +116,14 @@ export default function ControlScreen({ disconnect, handleJoystickChange, handle
         <Triggers
           onData={handleButtonData}
           size={50}
-          label='rt'
+          label='RT'
         />
       </View>
 
       <View style={[styles.control, { left: positions.ls.x, top: positions.ls.y }]}>
         <Stick
           onData={handleButtonData}
-          label='ls'
+          label='LS'
           size={40}
         />
       </View>
@@ -131,7 +131,7 @@ export default function ControlScreen({ disconnect, handleJoystickChange, handle
       <View style={[styles.control, { left: positions.rs.x, top: positions.rs.y }]}>
         <Stick
           onData={handleButtonData}
-          label='rs'
+          label='RS'
           size={40}
         />
       </View>

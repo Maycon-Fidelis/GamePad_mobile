@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useState, useEffect, useReducer, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 
@@ -17,7 +17,6 @@ interface JoystickState {
     x: number;
     y: number;
   };
-  buttons: Record<string, unknown>;
 }
 
 const initialState: JoystickState = {
@@ -26,13 +25,10 @@ const initialState: JoystickState = {
     x: 0,
     y: 0,
   },
-  buttons: {},
 };
 
 const reducer = (state: JoystickState, action: { type: string; payload: any }): JoystickState =>
-  action.type === 'JOYSTICK'
-    ? { joystick: action.payload, buttons: state.buttons }
-    : { joystick: state.joystick, buttons: action.payload };
+  action.type === 'JOYSTICK' ? { joystick: action.payload } : state;
 
 const Joystick: React.FC<JoystickProps> = ({
   joystickId,
@@ -44,6 +40,8 @@ const Joystick: React.FC<JoystickProps> = ({
 }) => {
   const [controller, updateController] = useReducer(reducer, initialState);
   const [vector, setVector] = useState({ x: 0, y: 0 });
+
+  const lastSentData = useRef({ x: 0, y: 0 });
 
   const mapToRange = (value: number, inMin: number, inMax: number, outMin: number, outMax: number): number => {
     return Math.round(((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin);
@@ -75,19 +73,24 @@ const Joystick: React.FC<JoystickProps> = ({
     const mappedX = mapToRange(x, -1, 1, -32768, 32767);
     const mappedY = mapToRange(-y, -1, 1, -32768, 32767);
 
-    const newJoystickData = {
-      duration: controller.joystick.duration + 1,
-      x: mappedX,
-      y: mappedY,
-      id: joystickId,
-    };
+    // 🔥 Evita enviar dados idênticos para reduzir carga no WebSocket
+    if (lastSentData.current.x !== mappedX || lastSentData.current.y !== mappedY) {
+      lastSentData.current = { x: mappedX, y: mappedY };
 
-    updateController({
-      type: 'JOYSTICK',
-      payload: newJoystickData,
-    });
+      const newJoystickData = {
+        duration: controller.joystick.duration + 1,
+        x: mappedX,
+        y: mappedY,
+        id: joystickId,
+      };
 
-   onDataChange(newJoystickData);
+      updateController({
+        type: 'JOYSTICK',
+        payload: newJoystickData,
+      });
+
+      onDataChange(newJoystickData);
+    }
   };
 
   const stopJoystick = () => {

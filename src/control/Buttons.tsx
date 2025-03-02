@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { LongPressGestureHandler, State } from 'react-native-gesture-handler';
 
 interface ButtonsProps {
-  onData: (data: { button: string | null; action: 'press' | 'release' }) => void;
+  onData: (data: { button: string | null; action: 'p' | 'r' }) => void;
   color?: string;
   background?: string;
   size?: number;
@@ -25,10 +25,10 @@ const Buttons: React.FC<ButtonsProps> = ({
   const handleStateChange = (button: string, state: number) => {
     if (state === State.BEGAN) {
       setPressedButtons((prev) => ({ ...prev, [button]: true }));
-      onData({ button, action: 'press' }); // Envia o estado "press"
+      onData({ button, action: 'p' }); // Envia o estado "press"
     } else if (state === State.END || state === State.FAILED || state === State.CANCELLED) {
       setPressedButtons((prev) => ({ ...prev, [button]: false }));
-      onData({ button, action: 'release' }); // Envia o estado "release"
+      onData({ button, action: 'r' }); // Envia o estado "release"
     }
   };
 

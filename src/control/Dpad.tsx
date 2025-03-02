@@ -8,7 +8,7 @@ import {
 } from 'react-native-gesture-handler';
 
 interface DpadProps {
-  onData: (data: { button: string | null; action: 'press' | 'release' }) => void;
+  onData: (data: { button: string | null; action: 'p' | 'r' }) => void;
   color?: string;
   background?: string;
   size?: number;
@@ -47,11 +47,11 @@ const Dpad: React.FC<DpadProps> = ({
 
     if (newPressedButton !== pressedButton) {
       if (pressedButton) {
-        onData({ button: pressedButton, action: 'release' });
+        onData({ button: pressedButton, action: 'r' });
       }
       setPressedButton(newPressedButton);
       if (newPressedButton) {
-        onData({ button: newPressedButton, action: 'press' });
+        onData({ button: newPressedButton, action: 'p' });
       }
     }
   };
@@ -71,11 +71,11 @@ const Dpad: React.FC<DpadProps> = ({
 
   const handleStateChange = (event: GestureHandlerStateChangeEvent) => {
     if (event.nativeEvent.state === State.END && pressedButton) {
-      onData({ button: pressedButton, action: 'release' });
+      onData({ button: pressedButton, action: 'r' });
       setPressedButton(null);
     } else if (event.nativeEvent.state === State.CANCELLED || event.nativeEvent.state === State.FAILED) {
       if (pressedButton) {
-        onData({ button: pressedButton, action: 'release' });
+        onData({ button: pressedButton, action: 'r' });
       }
       setPressedButton(null);
     }
@@ -83,12 +83,12 @@ const Dpad: React.FC<DpadProps> = ({
 
   const handleButtonPress = (button: string) => {
     setPressedButton(button);
-    onData({ button, action: 'press' });
+    onData({ button, action: 'p' });
   };
 
   const handleButtonRelease = () => {
     if (pressedButton) {
-      onData({ button: pressedButton, action: 'release' });
+      onData({ button: pressedButton, action: 'r' });
       setPressedButton(null);
     }
   };
