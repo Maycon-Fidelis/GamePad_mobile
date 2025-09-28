@@ -1,9 +1,6 @@
 import { Alert } from 'react-native';
 import Joystick from './control/Joystick';
 import i18n from './utils/i18n'; // Importa o i18n para utilizar as traduções
-const latencies = [];
-let request_count = 0;
-let high_latency_count = 0;
 
 export const connectionWebSocket = (url, name, setWs, setIsConnected) => {
   if (url && name) {
@@ -51,48 +48,14 @@ export const connectionWebSocket = (url, name, setWs, setIsConnected) => {
 
 export const sendControlData = (ws, b, s) => {
   if (ws && ws.readyState === WebSocket.OPEN) {
-    const timestamp = Date.now(); // Marca o tempo de envio
-
     const message = JSON.stringify({
       type: 'c',
       b,
-      s,
-      client_timestamp: timestamp // Envia o timestamp do cliente
+      s
     });
 
     console.log(i18n.t("sending_control_data"), message);
     ws.send(message);
-
-    const onMessage = (event) => {
-      const response = JSON.parse(event.data);
-      if (response.type === 'c' && response.b === b && response.s === s) {
-        const latency = Date.now() - response.client_timestamp; // Calcula latência
-        latencies.push(latency); // Armazena a latência
-        request_count++; // Contador de requisições
-
-        if (latency > 100) {
-          high_latency_count++; // Contador de latências altas
-        }
-
-        // Calcular latência mínima, máxima e média corretamente
-        const minLatency = Math.min(...latencies);
-        const maxLatency = Math.max(...latencies);
-        const avgLatency = latencies.reduce((sum, lat) => sum + lat, 0) / latencies.length;
-
-        // Exibir métricas no console
-        console.log(`Latência do botão ${b}: ${latency} ms`);
-        console.log(`Latência mínima: ${minLatency} ms`);
-        console.log(`Latência máxima: ${maxLatency} ms`);
-        console.log(`Latência média: ${avgLatency.toFixed(2)} ms`);
-        console.log(`Requisições totais: ${request_count}`);
-        console.log(`Requisições com latência alta (>100ms): ${high_latency_count}`);
-
-        // Remover listener após processamento
-        ws.removeEventListener("message", onMessage);
-      }
-    };
-
-    ws.addEventListener("message", onMessage);
   } else {
     console.log(i18n.t("websocket_not_open"));
   }
@@ -100,49 +63,15 @@ export const sendControlData = (ws, b, s) => {
 
 export const sendJoystickData = (ws, joystickId, x, y) => {
   if (ws && ws.readyState === WebSocket.OPEN) {
-    const timestamp = Date.now();
-
     const message = JSON.stringify({
       type: 'j',
       id: joystickId,
       x: x,
-      y: y,
-      client_timestamp: timestamp
+      y: y
     });
 
     console.log(i18n.t("sending_joystick_data"), message);
     ws.send(message);
-
-    const onMessage = (event) => {
-      const response = JSON.parse(event.data);
-      if (response.type === 'j' && response.id === joystickId) {
-        const latency = Date.now() - response.client_timestamp;
-        latencies.push(latency);
-        request_count++; // Contador de requisições
-    
-        if (latency > 100) {
-          high_latency_count++; // Contador de latências altas
-        }
-    
-        // Calcular latência mínima, máxima e média
-        const minLatency = Math.min(...latencies);
-        const maxLatency = Math.max(...latencies);
-        const avgLatency = latencies.reduce((sum, lat) => sum + lat, 0) / latencies.length;
-    
-        // Exibir métricas no console
-        console.log(`Latência do joystick ${joystickId}: ${latency} ms`);
-        console.log(`Latência mínima: ${minLatency} ms`);
-        console.log(`Latência máxima: ${maxLatency} ms`);
-        console.log(`Latência média: ${avgLatency.toFixed(2)} ms`);
-        console.log(`Requisições totais: ${request_count}`);
-        console.log(`Requisições com latência alta (>100ms): ${high_latency_count}`);
-    
-        // Remover listener após processamento
-        ws.removeEventListener("message", onMessage);
-      }
-    };
-
-    ws.addEventListener("message", onMessage);
   } else {
     console.log(i18n.t("websocket_not_open"));
   }
