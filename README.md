@@ -4,7 +4,7 @@ O **VirtualGamePad Mobile** transforma seu **celular em um controle de videogame
 Ele se conecta a um servidor Python (VirtualGamePad PC) via **WebSocket**, enviando comandos em tempo real com baixa latência após o usuário se identificar.
 
 ## 📸 Demonstração
-<img src="https://github.com/user-attachments/assets/15e0f8aa-2db6-4ded-930b-70b8f72cf1d9" alt="Texto Alternativo">
+<img src="https://github.com/user-attachments/assets/15e0f8aa-2db6-4ded-930b-70b8f72cf1d9" alt="Demonstração do Gamepad_mobile">
 
 ---
 
@@ -34,7 +34,7 @@ Ele se conecta a um servidor Python (VirtualGamePad PC) via **WebSocket**, envia
 
 Antes de começar, você precisará ter:
 
-1.  **O Servidor PC:** Este é apenas o aplicativo *cliente*. Você **precisa** do servidor [**VirtualGamePad PC**](https://github.com/Maycon-Fidelis/GamePad_received) (insira o link correto) rodando no seu computador.
+1.  **O Servidor PC:** Este é apenas o aplicativo *cliente*. Você **precisa** do servidor [**VirtualGamePad PC**](https://github.com/Maycon-Fidelis/GamePad_received) rodando no seu computador.
 2.  **Node.js** (versão 18 ou superior).
 3.  **App Expo Go** instalado no seu celular (Android ou iOS).
 4.  PC e Celular na **mesma rede Wi-Fi**.
@@ -106,13 +106,17 @@ Se estiver usando Expo Managed, o Android bloqueia conexões de texto puro (HTTP
   }
 }
 ````
-📜 Licença
+---
 
-Este projeto está sob a licença MIT.
-Consulte o arquivo LICENSE
- para mais detalhes.
+## 📜 Licença
 
-💡 Desenvolvido por
+Este projeto está sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
 
-Maycon Fidelis
-👨‍💻 Engenheiro da Computação & Desenvolvedor
+---
+
+## 💡 Desenvolvido por
+
+**Maycon Fidelis**
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/maycon-fidelis-66a757228/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Maycon-Fidelis)
