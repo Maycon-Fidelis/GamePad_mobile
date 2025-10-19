@@ -2,13 +2,13 @@
   "expo": {
     "name": "Gamepad_mobile",
     "slug": "Gamepad_mobile",
-    "version": "1.0.0",
+    "version": "1.0.4",
     "newArchEnabled": true,
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icone.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/icone.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff",
       "plugins": [
@@ -21,7 +21,9 @@
           },
           "expo-font",
           {
-            "fonts": ["path/to/file.ttf"]
+            "fonts": [
+              "path/to/file.ttf"
+            ]
           }
         ]
       ]
@@ -33,19 +35,26 @@
       }
     },
     "android": {
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icone.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
         "CAMERA"
-      ]
+      ],
+      "package": "com.mayconfidelis.Gamepad_mobile"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icone.png"
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "ebf0334f-a09b-44fb-8ae1-10ff78f02c68"
+      }
+    }
   }
 }
