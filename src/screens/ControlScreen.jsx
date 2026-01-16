@@ -17,6 +17,34 @@ const { width, height } = Dimensions.get('window');
 export default function ControlScreen({ disconnect, handleJoystickChange, handleButtonData }) {
   const { t } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
+  const [joystickPreset, setJoystickPreset] = useState('HIGH');
+
+    const JOYSTICK_PRESETS = {
+    LOW: {
+      label: 'Baixa',
+      precision: 16,
+    },
+    MEDIUM: {
+      label: 'Média',
+      precision: 64,
+    },
+    HIGH: {
+      label: 'Alta',
+      precision: 128,
+    },
+    FULL: {
+      label: 'Máxima (RAW)',
+      precision: null,
+    },
+  };
+  
+  const joystickConfig = {
+    precision: JOYSTICK_PRESETS[joystickPreset].precision,
+    deadZone: 0.03,
+    changeThreshold: 50,
+    size: 120,
+  };
+
 
   useEffect(() => {
     const lockOrientation = async () => {
@@ -73,18 +101,24 @@ export default function ControlScreen({ disconnect, handleJoystickChange, handle
       </View>
 
       <View style={[styles.control, { left: positions.Joystick1.x, top: positions.Joystick1.y }]}>      
-        <Joystick 
-          joystickId='1'
+        <Joystick
+          joystickId="1"
           onDataChange={handleJoystickChange}
-          size={120}
+          size={joystickConfig.size}
+          precision={joystickConfig.precision}
+          deadZone={joystickConfig.deadZone}
+          changeThreshold={joystickConfig.changeThreshold}
         />
       </View>
 
       <View style={[styles.control, { left: positions.Joystick2.x, top: positions.Joystick2.y }]}>      
-        <Joystick 
-          joystickId='2'
+        <Joystick
+          joystickId="2"
           onDataChange={handleJoystickChange}
-          size={120}
+          size={joystickConfig.size}
+          precision={joystickConfig.precision}
+          deadZone={joystickConfig.deadZone}
+          changeThreshold={joystickConfig.changeThreshold}
         />
       </View>
 
@@ -163,6 +197,32 @@ export default function ControlScreen({ disconnect, handleJoystickChange, handle
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>{t('settings')}</Text> 
+              <View style={{ marginBottom: 20 }}>
+                <Text style={styles.sectionTitle}>Precisão do Analógico</Text>
+
+                <View style={styles.presetRow}>
+                  {Object.entries(JOYSTICK_PRESETS).map(([key, preset]) => {
+                    const selected = joystickPreset === key;
+
+                    return (
+                      <TouchableOpacity
+                        key={key}
+                        onPress={() => setJoystickPreset(key)}
+                        style={[
+                          styles.presetButton,
+                          selected && styles.presetButtonActive,
+                        ]}
+                      >
+                        <Text style={selected ? styles.presetTextActive : styles.presetText}>
+                          {preset.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+              </View>
+            
             <View style={styles.modalActions}>
               <TouchableOpacity onPress={handleDisconnect} style={styles.modalButton}>
                 <Text style={styles.modalButtonText}>{t('disconnect')}</Text> 
@@ -239,4 +299,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
   },
+  sectionTitle: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  marginBottom: 10,
+  },
+  configButton: {
+    padding: 8,
+    backgroundColor: '#eee',
+    borderRadius: 6,
+    marginTop: 6,
+    alignItems: 'center',
+  },
+    presetRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginTop: 10,
+  },
+
+  presetButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#eee',
+    marginBottom: 8,
+    minWidth: '45%',
+    alignItems: 'center',
+  },
+
+  presetButtonActive: {
+    backgroundColor: '#007bff',
+  },
+
+  presetText: {
+    color: '#333',
+    fontWeight: '500',
+  },
+
+  presetTextActive: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+
 });

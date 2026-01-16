@@ -9,6 +9,10 @@ interface JoystickProps {
   backgroundColor?: string;
   ballColor?: string;
   ballOpacity?: number;
+
+  precision?: number; // ex: 8, 16, 32, 64
+  deadZone?: number; // ex: 0.05
+  changeThreshold?: number; // ex: 200
 }
 
 interface JoystickState {
@@ -37,6 +41,9 @@ const Joystick: React.FC<JoystickProps> = ({
   backgroundColor = '#DDD',
   ballColor = 'blue',
   ballOpacity = 0.9,
+  precision = 128,
+  deadZone = 0.03,
+  changeThreshold = 50,
 }) => {
   const [controller, updateController] = useReducer(reducer, initialState);
   const [vector, setVector] = useState({ x: 0, y: 0 });
@@ -46,6 +53,12 @@ const Joystick: React.FC<JoystickProps> = ({
   const mapToRange = (value: number, inMin: number, inMax: number, outMin: number, outMax: number): number => {
     return Math.round(((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin);
   };
+
+  const quantize = (value: number, levels: number): number => {
+    const step = 2 / (levels - 1);
+    return Math.round(value / step) * step;
+  };
+
 
   const startJoystick = (event: any) => {
     const X = event.nativeEvent.translationX;
@@ -59,14 +72,32 @@ const Joystick: React.FC<JoystickProps> = ({
     let x = Math.max(-1, Math.min(1, scaledX));
     let y = Math.max(-1, Math.min(1, scaledY));
 
+    if (Math.abs(x) < deadZone) x = 0;
+    if (Math.abs(y) < deadZone) y = 0;
+
+    x = quantize(x, precision);
+    y = quantize(y, precision);
+
     const distance = Math.sqrt(x * x + y * y);
     if (distance > 1) {
       x /= distance;
       y /= distance;
     }
 
-    const visualX = x * maxDistance;
-    const visualY = y * maxDistance;
+    let rawX = Math.max(-1, Math.min(1, scaledX));
+    let rawY = Math.max(-1, Math.min(1, scaledY));
+
+    if (Math.abs(rawX) < deadZone) rawX = 0;
+    if (Math.abs(rawY) < deadZone) rawY = 0;
+
+    const rawDistance = Math.sqrt(rawX * rawX + rawY * rawY);
+    if (rawDistance > 1) {
+      rawX /= rawDistance;
+      rawY /= rawDistance;
+    }
+
+    const visualX = rawX * maxDistance;
+    const visualY = rawY * maxDistance;
 
     setVector({ x: visualX, y: visualY });
 
@@ -74,7 +105,10 @@ const Joystick: React.FC<JoystickProps> = ({
     const mappedY = mapToRange(-y, -1, 1, -32768, 32767);
 
     // 🔥 Evita enviar dados idênticos para reduzir carga no WebSocket
-    if (lastSentData.current.x !== mappedX || lastSentData.current.y !== mappedY) {
+    if (
+      Math.abs(mappedX - lastSentData.current.x) >= changeThreshold ||
+      Math.abs(mappedY - lastSentData.current.y) >= changeThreshold
+    ) {
       lastSentData.current = { x: mappedX, y: mappedY };
 
       const newJoystickData = {

@@ -3,54 +3,50 @@
     "name": "Gamepad_mobile",
     "slug": "Gamepad_mobile",
     "version": "1.0.4",
-    "newArchEnabled": true,
     "orientation": "portrait",
+    "newArchEnabled": true,
+
     "icon": "./assets/icone.png",
     "userInterfaceStyle": "light",
+
     "splash": {
       "image": "./assets/icone.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff",
-      "plugins": [
-        [
-          "expo-camera",
-          {
-            "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-            "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
-            "recordAudioAndroid": true
-          },
-          "expo-font",
-          {
-            "fonts": [
-              "path/to/file.ttf"
-            ]
-          }
-        ]
-      ]
+      "backgroundColor": "#ffffff"
     },
+
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to scan QR codes."
       }
     },
+
     "android": {
-      "usesCleartextTraffic": true,
+      "package": "com.mayconfidelis.Gamepad_mobile",
+      "permissions": ["CAMERA"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/icone.png",
         "backgroundColor": "#ffffff"
-      },
-      "permissions": [
-        "CAMERA"
-      ],
-      "package": "com.mayconfidelis.Gamepad_mobile"
+      }
     },
+
     "web": {
       "favicon": "./assets/icone.png"
     },
+
     "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ],
       "expo-font"
     ],
+
     "extra": {
       "eas": {
         "projectId": "ebf0334f-a09b-44fb-8ae1-10ff78f02c68"
